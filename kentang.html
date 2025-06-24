@@ -109,7 +109,7 @@
                     <div class="w-10 h-10 rounded-full bg-sage-500 flex items-center justify-center mr-3">
                         <i class="fas fa-piggy-bank text-white text-xl"></i>
                     </div>
-                    <h1 class="text-xl font-display font-bold text-sage-700">MAZA FINANCE</h1>
+                    <h1 class="text-xl font-bold text-sage-700">MAZA FINANCE</h1>
                 </div>
                 
                 <nav id="desktop-menu" class="hidden md:flex items-center space-x-6">
@@ -117,7 +117,7 @@
                     <a href="invesment.html" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">News</a>
                     <a href="finance AI.html" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">Financial AI</a>
                     <a href="#" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">Games</a>
-                    <a href="kentang.html" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">Manajemen Keuangan</a>
+                    <a href="manajemen.html" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">Manajemen Keuangan</a>
                 </nav>
                 
                 <div class="flex items-center space-x-4">
@@ -138,7 +138,7 @@
                 <a href="invesment.html" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">News</a>
                 <a href="finance AI.html" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">Financial AI</a>
                 <a href="#" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">Games</a>
-                <a href="kentang.html" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">Manajemen Keuangan</a>
+                <a href="manajemen.html" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">Manajemen Keuangan</a>
                 <button class="w-full text-left mt-2 py-2 px-4 bg-sage-500 text-white">Sign In</button>
             </div>
         </header>
@@ -167,7 +167,7 @@
             <div class="card mb-8 p-4">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold flex items-center" style="color: var(--text);"><span class="mr-2 text-2xl">📊</span> Ringkasan Bulanan</h2>
-                    <button id="ai-analysis-button" class="btn-primary py-1 px-3 text-xs flex items-center">
+                    <button id="ai-analysis-button" class="btn-primary py-1 px-3 text-xs flex items-center" disabled title="Isi data transaksi terlebih dahulu">
                         <span class="mr-2">✨</span> Analisis AI
                     </button>
                 </div>
@@ -217,7 +217,7 @@
 
                 const geometry = new THREE.IcosahedronGeometry(1.5, 0); 
                 const material = new THREE.MeshStandardMaterial({
-                    color: 0x84a98c, // Sage Green
+                    color: 0x84a98c,
                     metalness: 0.3,
                     roughness: 0.6,
                 });
@@ -283,7 +283,7 @@
             const aiAnalysisButton = document.getElementById('ai-analysis-button');
             const aiAnalysisResultDiv = document.getElementById('ai-analysis-result');
 
-            let transactionsData = {}; // { "2024": { "Januari": [ ... ], ... }, ... }
+            let transactionsData = {}; 
             let monthlyExpenseChartInstance;
             let fiveYearProjectionChartInstance;
 
@@ -296,13 +296,57 @@
             };
             const hideMessageBox = () => messageBoxOverlay.classList.add('hidden');
 
+            const generateFakeData = () => {
+                const today = new Date();
+                const currentYear = today.getFullYear().toString();
+                const fakeData = {
+                    [currentYear]: {}
+                };
+
+                for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+                    const monthName = getMonthName(monthIndex);
+                    const transactionsForMonth = [];
+                    // Tambah gaji bulanan
+                    transactionsForMonth.push({
+                        date: `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-01`,
+                        category: 'Gaji', description: 'Gaji Bulanan', type: 'Pendapatan',
+                        amount: Math.floor(Math.random() * (10000000 - 5000000 + 1)) + 5000000
+                    });
+
+                    // Tambah beberapa pengeluaran acak
+                    const expenseCount = Math.floor(Math.random() * 8) + 5;
+                    const expenseCategories = [
+                        { cat: 'Makanan & Minuman', desc: 'Makan siang' }, { cat: 'Transportasi', desc: 'Bensin' },
+                        { cat: 'Tagihan', desc: 'Bayar Pulsa' }, { cat: 'Hiburan', desc: 'Nonton Bioskop' },
+                        { cat: 'Belanja', desc: 'Belanja Online' }, { cat: 'Kesehatan', desc: 'Beli Obat' },
+                    ];
+                    for (let i = 0; i < expenseCount; i++) {
+                        const day = Math.floor(Math.random() * 28) + 1;
+                        const randomCategory = expenseCategories[Math.floor(Math.random() * expenseCategories.length)];
+                        transactionsForMonth.push({
+                            date: `${currentYear}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+                            category: randomCategory.cat, description: randomCategory.desc, type: 'Pengeluaran',
+                            amount: Math.floor(Math.random() * (500000 - 15000 + 1)) + 15000
+                        });
+                    }
+                    fakeData[currentYear][monthName] = transactionsForMonth;
+                }
+                return fakeData;
+            };
+
+
             const loadData = () => {
-                const data = localStorage.getItem('financialData_v6');
-                transactionsData = data ? JSON.parse(data) : {};
+                const data = localStorage.getItem('financialData_v7');
+                if (data && Object.keys(JSON.parse(data)).length > 0) {
+                    transactionsData = JSON.parse(data);
+                } else {
+                    transactionsData = generateFakeData();
+                    saveData();
+                }
             };
             
             const saveData = () => {
-                localStorage.setItem('financialData_v6', JSON.stringify(transactionsData));
+                localStorage.setItem('financialData_v7', JSON.stringify(transactionsData));
             };
 
             const applyTheme = (theme) => {
@@ -362,8 +406,12 @@
                 
                 transactionListDiv.innerHTML = '';
                 if (monthlyTransactions.length === 0) {
+                    aiAnalysisButton.disabled = true;
+                    aiAnalysisButton.title = "Isi data transaksi terlebih dahulu";
                     transactionListDiv.innerHTML = `<p class="text-center py-8 text-sm" style="color: var(--text-secondary);">Belum ada transaksi.</p>`;
                 } else {
+                    aiAnalysisButton.disabled = false;
+                    aiAnalysisButton.title = "Dapatkan analisis AI untuk bulan ini";
                     monthlyTransactions.forEach((t, index) => {
                         const item = document.createElement('div');
                         item.className = `transaction-item flex items-center p-2 rounded-md ${t.type.toLowerCase()}`;
@@ -384,8 +432,8 @@
                     });
                 }
                 
-                const income = monthlyTransactions.filter(t => t.type === 'Pendapatan').reduce((sum, t) => sum + t.amount, 0);
-                const expense = monthlyTransactions.filter(t => t.type === 'Pengeluaran').reduce((sum, t) => sum + t.amount, 0);
+                const income = monthlyTransactions.reduce((sum, t) => t.type === 'Pendapatan' ? sum + t.amount : sum, 0);
+                const expense = monthlyTransactions.reduce((sum, t) => t.type === 'Pengeluaran' ? sum + t.amount : sum, 0);
                 
                 totalIncomeSpan.textContent = formatCurrency(income);
                 totalExpenseSpan.textContent = formatCurrency(expense);
@@ -415,10 +463,11 @@
                 for (let i = 0; i < 12; i++) {
                     const monthName = getMonthName(i);
                     const monthTransactions = yearlyData[monthName] || [];
-                    if (monthTransactions.length > 0) hasData = true;
+                    
+                    const income = monthTransactions.reduce((s, t) => t.type === 'Pendapatan' ? s + t.amount : s, 0);
+                    const expense = monthTransactions.reduce((s, t) => t.type === 'Pengeluaran' ? s + t.amount : s, 0);
+                    if (income > 0 || expense > 0) hasData = true;
 
-                    const income = monthTransactions.filter(t => t.type === 'Pendapatan').reduce((s, t) => s + t.amount, 0);
-                    const expense = monthTransactions.filter(t => t.type === 'Pengeluaran').reduce((s, t) => s + t.amount, 0);
                     const balance = income - expense;
 
                     const row = yearlySummaryTableBody.insertRow();
@@ -429,8 +478,50 @@
                     yearlySummaryTableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4" style="color: var(--text-secondary)">Tidak ada data untuk tahun ${year}.</td></tr>`;
                 }
             };
-            const renderFiveYearProjection = () => {};
-            const updateFiveYearProjectionChart = () => {};
+
+            const renderFiveYearProjection = () => {
+                const allTransactions = Object.values(transactionsData).flatMap(year => Object.values(year)).flat();
+                if (allTransactions.length === 0) {
+                    updateFiveYearProjectionChart([], [], []);
+                    return;
+                }
+                
+                const monthsWithData = new Set(allTransactions.map(t => t.date.substring(0, 7))).size;
+                const totalIncome = allTransactions.filter(t => t.type === 'Pendapatan').reduce((sum, t) => sum + t.amount, 0);
+                const totalExpense = allTransactions.filter(t => t.type === 'Pengeluaran').reduce((sum, t) => sum + t.amount, 0);
+
+                const avgMonthlyIncome = monthsWithData > 0 ? totalIncome / monthsWithData : 0;
+                const avgMonthlyExpense = monthsWithData > 0 ? totalExpense / monthsWithData : 0;
+
+                const currentYear = new Date().getFullYear();
+                const labels = [];
+                const projectedIncomes = [];
+                const projectedExpenses = [];
+                for (let i = 0; i < 5; i++) {
+                    const year = currentYear + i;
+                    labels.push(year);
+                    projectedIncomes.push(avgMonthlyIncome * 12);
+                    projectedExpenses.push(avgMonthlyExpense * 12);
+                }
+                updateFiveYearProjectionChart(labels, projectedIncomes, projectedExpenses);
+            };
+            
+            const updateFiveYearProjectionChart = (labels, incomes, expenses) => {
+                const ctx = document.getElementById('fiveYearProjectionChart').getContext('2d');
+                if (fiveYearProjectionChartInstance) fiveYearProjectionChartInstance.destroy();
+                
+                 fiveYearProjectionChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Pendapatan', data: incomes, backgroundColor: 'rgba(82, 183, 136, 0.7)', borderRadius: 4 },
+                            { label: 'Pengeluaran', data: expenses, backgroundColor: 'rgba(252, 163, 17, 0.7)', borderRadius: 4 }
+                        ]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: value => formatCurrency(value) } }, x: { grid: { display: false } } }, plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (c) => `${c.dataset.label}: ${formatCurrency(c.raw)}` } } } }
+                });
+            };
 
             // EVENT LISTENERS
             mobileMenuButton.addEventListener('click', () => {
@@ -480,7 +571,7 @@
                 }
             });
             
-            aiAnalysisButton.addEventListener('click', async () => { /* AI Logic remains the same */ });
+            aiAnalysisButton.addEventListener('click', async () => { /* AI Logic can be added here */ });
 
             filterYearSelect.addEventListener('change', renderAll);
             filterMonthSelect.addEventListener('change', renderAll);
