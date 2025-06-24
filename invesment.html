@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investasi - Maza FINANCE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'sage': {
+                            50: '#f0f7f0',
+                            100: '#e0efe0',
+                            200: '#c1dfc1',
+                            300: '#a1cfa1',
+                            400: '#82bf82',
+                            500: '#63af63',
+                            600: '#4f8c4f',
+                            700: '#3b693b',
+                            800: '#284628',
+                            900: '#142314',
+                        }
+                    },
+                    fontFamily: {
+                        'display': ['"Playfair Display"', 'serif'],
+                        'sans': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .news-card {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .news-image {
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .news-card:hover .news-image {
+            transform: scale(1.03);
+        }
+        .category-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+        .skeleton-loader {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Mobile menu styles */
+        .mobile-menu {
+            display: none;
+            width: 100%;
+            background: white;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-menu.active {
+            display: block;
+        }
+        .mobile-menu a {
+            display: block;
+            padding: 12px 20px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .hamburger {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+            nav:not(.mobile-menu) {
+                display: none;
+            }
+            .hero-content h2 {
+                font-size: 1.75rem;
+                margin-bottom: 1rem;
+            }
+            .hero-content p {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            .search-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .search-container input {
+                width: 100%;
+                padding: 12px;
+            }
+            .search-container button {
+                width: 100%;
+                position: relative;
+                right: auto;
+                top: auto;
+                transform: none;
+            }
+            .category-buttons {
+                overflow-x: auto;
+                padding-bottom: 10px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .category-buttons::-webkit-scrollbar {
+                display: none;
+            }
+            .category-buttons > div {
+                display: flex;
+                gap: 8px;
+                min-width: max-content;
+            }
+            .category-buttons button {
+                white-space: nowrap;
+                padding: 6px 12px;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-sage-50 font-sans text-gray-800">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-sage-500 flex items-center justify-center mr-3">
+                    <i class="fas fa-piggy-bank text-white text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-display font-bold text-sage-700">MAZA FINANCE</h1>
+            </div>
+            
+            <nav class="hidden md:flex space-x-8">
+                <a href="maza.html" class="nav-link font-medium hover:text-sage-600 transition">Dashboard</a>
+                <a href="invesment.html" class="nav-link font-medium hover:text-sage-600 transition">News</a>
+                <a href="#" class="nav-link font-medium hover:text-sage-600 transition">Financial AI</a>
+                <a href="#" class="nav-link font-medium hover:text-sage-600 transition">Games</a>
+                <a href="kentang.html" class="nav-link font-medium hover:text-sage-600 transition">Manajemen Keuangan</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <button class="bg-sage-500 hover:bg-sage-600 text-white px-4 py-2 rounded-full font-medium transition hidden sm:flex items-center">
+                    <i class="fas fa-lock mr-2"></i> Sign In
+                </button>
+                <button id="mobile-menu-button" class="md:hidden text-sage-700">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="mobile-menu md:hidden">
+            <a href="maza.html" class="nav-link font-medium hover:bg-gray-50 transition block">Dashboard</a>
+            <a href="invesment.html" class="nav-link font-medium hover:bg-gray-50 transition block">News</a>
+            <a href="#" class="nav-link font-medium hover:bg-gray-50 transition block">Financial AI</a>
+            <a href="#" class="nav-link font-medium hover:bg-gray-50 transition block">Games</a>
+            <a href="kentang.html" class="nav-link font-medium hover:bg-gray-50 transition block">Manajemen Keuangan</a>
+            <a href="#" class="nav-link font-medium hover:bg-gray-50 transition block sm:hidden">
+                <i class="fas fa-lock mr-2"></i> Sign In
+            </a>
+        </div>
+    </header>
+
+<!-- Hero Section -->
+<section class="relative text-white py-16 md:py-24 lg:py-32 overflow-hidden bg-sage-700">
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+        <source src="https://cdn.discordapp.com/attachments/564797371905736714/1386265698925281320/lol.mp4?ex=6859140a&is=6857c28a&hm=12d68f4741801fccdae81210064910478542a610775413bdd02651e46f7e792d&" type="video/mp4">
+    </video>
+    
+    <!-- Gradient Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-br from-sage-700/90 via-sage-600/85 to-sage-800/90 z-10"></div>
+    
+    <!-- Content -->
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20">
+        <div class="max-w-4xl mx-auto text-center">
+            <!-- Badge -->
+            <span class="inline-block bg-sage-500/20 backdrop-blur-sm text-sage-100 text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-sage-400/30">
+                Update Terkini
+            </span>
+            
+            <!-- Title -->
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                Berita <span class="text-sage-300">Investasi</span> Terkini
+            </h1>
+            
+            <!-- Description -->
+            <p class="text-lg sm:text-xl text-sage-100 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Dapatkan informasi terbaru seputar dunia investasi dan keuangan untuk membantu Anda mengambil keputusan finansial yang lebih baik.
+            </p>
+            
+            <!-- Search Bar -->
+            <div class="max-w-2xl mx-auto relative">
+                <div class="relative flex flex-col sm:flex-row gap-4">
+                    <div class="relative flex-1">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-sage-400">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            placeholder="Cari berita investasi..." 
+                            class="w-full pl-11 pr-4 py-4 rounded-xl text-gray-800 focus:outline-none focus:ring-2 focus:ring-sage-500 focus:border-transparent shadow-lg"
+                        >
+                    </div>
+                    <button class="bg-sage-600 hover:bg-sage-700 text-white font-medium px-6 py-4 rounded-xl transition duration-300 ease-in-out transform hover:-translate-y-0.5 shadow-lg hover:shadow-xl flex items-center justify-center">
+                        <i class="fas fa-search mr-2"></i>
+                        <span>Cari Berita</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats -->
+            <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+                    <div class="text-2xl font-bold text-sage-300">500+</div>
+                    <div class="text-sm text-sage-200">Artikel</div>
+                </div>
+                <div class="p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+                    <div class="text-2xl font-bold text-sage-300">50+</div>
+                    <div class="text-sm text-sage-200">Kategori</div>
+                </div>
+                <div class="p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+                    <div class="text-2xl font-bold text-sage-300">10K+</div>
+                    <div class="text-sm text-sage-200">Pembaca</div>
+                </div>
+                <div class="p-4 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
+                    <div class="text-2xl font-bold text-sage-300">24/7</div>
+                    <div class="text-sm text-sage-200">Update</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+        <div class="w-8 h-12 border-4 border-sage-300 rounded-full flex justify-center items-start p-2">
+            <div class="w-1 h-3 bg-sage-300 rounded-full"></div>
+        </div>
+    </div>
+</section>
+    <style>
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(99, 175, 99, 0.8), rgba(59, 105, 59, 0.8));
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- News Section -->
+            <div class="lg:w-3/4">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Berita Terbaru</h2>
+                    <div class="category-buttons">
+                        <div class="flex space-x-2">
+                            <button class="bg-sage-600 text-white px-4 py-2 rounded-lg text-sm md:text-base">Semua</button>
+                            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm md:text-base">Saham</button>
+                            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm md:text-base">Obligasi</button>
+                            <button class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 text-sm md:text-base">Reksadana</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- News Grid -->
+                <div id="news-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- News cards will be loaded here -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="mt-12 flex justify-center">
+                    <nav class="inline-flex rounded-md shadow">
+                        <a href="#" class="py-2 px-4 rounded-l-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                        <a href="#" class="py-2 px-4 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">1</a>
+                        <a href="#" class="py-2 px-4 border border-gray-300 bg-sage-600 text-white">2</a>
+                        <a href="#" class="py-2 px-4 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">3</a>
+                        <a href="#" class="py-2 px-4 rounded-r-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:w-1/4">
+                <!-- Market Summary -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Ringkasan Pasar</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-600">IHSG</span>
+                                <span class="font-semibold">7,201.45</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-green-500">+1.25%</span>
+                                <span class="text-gray-500">Hari ini</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-600">USD/IDR</span>
+                                <span class="font-semibold">15,420</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-red-500">-0.35%</span>
+                                <span class="text-gray-500">Hari ini</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-gray-600">Emas</span>
+                                <span class="font-semibold">1,982.30</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-green-500">+0.75%</span>
+                                <span class="text-gray-500">Hari ini</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full mt-4 bg-sage-100 text-sage-700 py-2 rounded-lg hover:bg-sage-200 transition">
+                        Lihat Selengkapnya
+                    </button>
+                </div>
+                
+                <!-- Top News -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Berita Populer</h3>
+                    
+                    <div class="space-y-4">
+                        <a href="#" class="block group">
+                            <div class="flex items-start">
+                                <div class="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16"></div>
+                                <div class="ml-3">
+                                    <h4 class="font-semibold group-hover:text-sage-600 transition">BI Prediksi Inflasi Tahun Depan Lebih Rendah</h4>
+                                    <div class="flex items-center text-sm text-gray-500 mt-1">
+                                        <span>Hari ini</span>
+                                        <span class="mx-2">•</span>
+                                        <span>1.2K dilihat</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <a href="#" class="block group">
+                            <div class="flex items-start">
+                                <div class="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16"></div>
+                                <div class="ml-3">
+                                    <h4 class="font-semibold group-hover:text-maza-primary transition">Analis: Saham Bank Masih Potensial Naik 20%</h4>
+                                    <div class="flex items-center text-sm text-gray-500 mt-1">
+                                        <span>Kemarin</span>
+                                        <span class="mx-2">•</span>
+                                        <span>980 dilihat</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <a href="#" class="block group">
+                            <div class="flex items-start">
+                                <div class="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16"></div>
+                                <div class="ml-3">
+                                    <h4 class="font-semibold group-hover:text-maza-primary transition">Reksadana Pendapatan Tetap Catat Inflasi Tertinggi</h4>
+                                    <div class="flex items-center text-sm text-gray-500 mt-1">
+                                        <span>2 hari lalu</span>
+                                        <span class="mx-2">•</span>
+                                        <span>850 dilihat</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Newsletter -->
+    <section class="bg-gray-100 py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-3xl font-bold mb-4">Dapatkan Update Investasi Langsung</h2>
+                <p class="text-gray-600 mb-8">Berlangganan newsletter kami untuk menerima analisis pasar, tips investasi, dan berita finansial terkini</p>
+                
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <input type="email" placeholder="Email Anda" class="flex-grow px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-maza-primary">
+                    <button class="bg-sage-600 text-white px-6 py-3 rounded-lg hover:bg-sage-700 transition">
+                        Berlangganan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white pt-12 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="bg-sage-600 w-8 h-8 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold ml-2">Maza Finance</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">Platform investasi terpercaya untuk membantu Anda mencapai kebebasan finansial.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Perusahaan</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Tentang Kami</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Karir</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Partner</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Kontak</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Layanan</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Investasi Saham</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Reksadana</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Obligasi</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Edukasi</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Kalkulator Investasi</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Kontak</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-gray-400"></i>
+                            <span class="text-gray-400">Jl. Sudirman No. 123, Jakarta Selatan</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone-alt mr-3 text-gray-400"></i>
+                            <span class="text-gray-400">(021) 1234-5678</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-3 text-gray-400"></i>
+                            <span class="text-gray-400">info@mazafinance.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 Maza Finance. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simulated news data (in a real implementation, this would come from an API)
+        const newsData = [
+            {
+                id: 1,
+                title: "BI Prediksi Inflasi Tahun Depan Lebih Rendah",
+                excerpt: "Bank Indonesia memperkirakan inflasi tahun depan akan lebih rendah dibanding tahun ini seiring dengan stabilisasi harga pangan...",
+                category: "Ekonomi",
+                date: "Hari ini",
+                views: 1200,
+                image: "https://images.unsplash.com/photo-1604594849809-dfedbc827105?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 2,
+                title: "Analis: Saham Bank Masih Potensial Naik 20%",
+                excerpt: "Para analis pasar modal memperkirakan saham sektor perbankan masih memiliki potensi kenaikan hingga 20% di tahun depan...",
+                category: "Saham",
+                date: "Kemarin",
+                views: 980,
+                image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 3,
+                title: "Reksadana Pendapatan Tetap Catat Inflasi Tertinggi",
+                excerpt: "Reksadana pendapatan tetap mencatat inflasi tertinggi di antara produk investasi lainnya pada kuartal ketiga tahun ini...",
+                category: "Reksadana",
+                date: "2 hari lalu",
+                views: 850,
+                image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 4,
+                title: "Pemerintah Akan Terbitkan Obligasi Hijau Senilai Rp 10 Triliun",
+                excerpt: "Pemerintah berencana menerbitkan obligasi hijau senilai Rp 10 triliun untuk mendanai proyek-proyek ramah lingkungan...",
+                category: "Obligasi",
+                date: "3 hari lalu",
+                views: 720,
+                image: "https://images.unsplash.com/photo-1553877522-43269d4ea984?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 5,
+                title: "Fintech Lending Tumbuh 35% di Tengah Kenaikan Suku Bunga",
+                excerpt: "Sektor fintech lending menunjukkan pertumbuhan 35% meskipun terjadi kenaikan suku bunga acuan oleh Bank Indonesia...",
+                category: "Fintech",
+                date: "4 hari lalu",
+                views: 650,
+                image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+            },
+            {
+                id: 6,
+                title: "Investor Asing Kembali Masuk ke Pasar Saham Indonesia",
+                excerpt: "Arus masuk modal asing ke pasar saham Indonesia mulai menunjukkan tren positif setelah beberapa bulan mengalami net sell...",
+                category: "Saham",
+                date: "5 hari lalu",
+                views: 590,
+                image: "https://images.unsplash.com/photo-1604594849809-dfedbc827105?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+            }
+        ];
+
+        // Function to render news cards
+        function renderNews() {
+            const newsContainer = document.getElementById('news-container');
+            newsContainer.innerHTML = '';
+            
+            newsData.forEach(news => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl news-card overflow-hidden';
+                card.innerHTML = `
+                    <div class="relative">
+                        <img src="${news.image}" alt="${news.title}" class="w-full news-image">
+                        <span class="category-badge bg-sage-600 text-white text-xs font-semibold px-3 py-1 rounded-full">${news.category}</span>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">${news.title}</h3>
+                        <p class="text-gray-600 mb-4">${news.excerpt}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-500">${news.date}</span>
+                            <div class="flex items-center">
+                                <i class="fas fa-eye text-gray-400 mr-1"></i>
+                                <span class="text-sm text-gray-500">${news.views}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                newsContainer.appendChild(card);
+            });
+        }
+
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('active');
+                });
+            }
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!mobileMenu.contains(e.target) && e.target !== mobileMenuButton) {
+                    mobileMenu.classList.remove('active');
+                }
+            });
+
+            // Initialize the news rendering
+            renderNews();
+        });
+    </script>
+</body>
+</html>

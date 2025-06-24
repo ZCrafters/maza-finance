@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="night"> <!-- Tema diubah ke 'night' agar teks lebih kontras dengan video gelap -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potato - Maza Finance</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Three.js & GSAP (untuk animasi 3D interaktif) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    
+    <style>
+        /* Variabel CSS untuk tema gelap, dioptimalkan untuk background video */
+        :root {
+            --primary: #a3b18a;
+            --primary-dark: #84a98c;
+            --text: #e0e4e1;
+            --text-secondary: #cad2c5;
+            --bg: #1a202c; /* Latar belakang fallback jika video gagal dimuat */
+            --card-bg: rgba(47, 62, 70, 0.85); /* Kartu semi-transparan */
+            --card-border: rgba(82, 121, 111, 0.5);
+            --card-hover: rgba(53, 79, 82, 0.9);
+            --accent: #ffdf3d;
+            --danger: #e63946;
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        html {
+            scroll-behavior: smooth; /* Mengaktifkan smooth scroll */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            overflow-x: hidden; /* Mencegah scroll horizontal */
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(10px); /* Efek glassmorphism */
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            border-radius: 0.75rem; /* Sudut lebih bulat */
+        }
+        .card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+        }
+        .btn-primary {
+            background-color: var(--accent);
+            color: #2f3e46; /* Warna teks gelap agar kontras dengan tombol kuning */
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            box-shadow: 0 4px 15px -2px rgba(255, 223, 61, 0.4);
+        }
+        .btn-primary:hover {
+            background-color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px -2px rgba(255, 223, 61, 0.5);
+        }
+        /* Styling untuk solusi */
+        .solusi-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .solusi-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+        /* Style untuk form login/register */
+        .form-input {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+            color: var(--text);
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+        }
+        .auth-tab {
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+        }
+        .auth-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Lapisan Visual dari Belakang ke Depan -->
+    <!-- 1. Background Video (Paling Belakang) -->
+    <div class="fixed top-0 left-0 w-full h-full -z-20 overflow-hidden">
+        <video autoplay loop muted playsinline class="w-full h-full object-cover">
+            <source src="https://cdn.discordapp.com/attachments/564797371905736714/1386265698925281320/lol.mp4?ex=685b0e4a&is=6859bcca&hm=ca1aa0724da5ae3459166ec0ee57c5332e8dff5c727a8560000a170c6a0f41ad" type="video/mp4">
+            Video tidak dapat dimuat.
+        </video>
+    </div>
+    <!-- 2. Overlay Gelap -->
+    <div class="fixed top-0 left-0 w-full h-full -z-10 bg-black/60"></div>
+    <!-- 3. Canvas untuk Animasi 3D Interaktif -->
+    <canvas id="interactive-3d-canvas" class="fixed top-0 left-0 -z-[5]"></canvas>
+
+    <!-- 4. Konten Halaman (Paling Depan) -->
+    <div id="landing-page">
+        <main class="relative z-10 p-4 sm:p-6 md:p-8">
+            <div class="container mx-auto">
+                <!-- Bagian Hero -->
+                <div class="text-center py-16 sm:py-24">
+                    <h1 class="text-4xl md:text-6xl font-extrabold mb-4 text-white drop-shadow-lg">
+                        Kuasai Uangmu, Kuasai Masa Depanmu
+                    </h1>
+                    <p class="text-lg md:text-xl max-w-3xl mx-auto" style="color: var(--text-secondary);">
+                        Literasi finansial bukan lagi pilihan, tapi keharusan. Temukan masalah umum dan solusi praktis untuk membangun pondasi keuangan yang kokoh.
+                    </p>
+                </div>
+
+                <!-- Bagian Informasi Finansial -->
+                <div class="mb-16">
+                    <h2 class="text-3xl font-bold text-center mb-10 text-white">Masalah Keuangan Umum & Solusinya</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="card p-6"> <h3 class="text-xl font-bold mb-3" style="color: var(--primary);">Gaji Habis di Tengah Bulan?</h3> <p class="text-sm mb-4" style="color: var(--text-secondary);">Merasa cemas saat tanggal tua mendekat karena uang sudah menipis? Ini tanda pengeluaran lebih besar dari pendapatan.</p> <h4 class="font-semibold mb-2 text-white">Solusi Praktis:</h4> <ul class="solusi-list text-sm" style="color: var(--text-secondary);"> <li>Gunakan metode budgeting 50/30/20 (Kebutuhan/Keinginan/Tabungan).</li> <li>Catat SEMUA pengeluaran, sekecil apapun, selama sebulan penuh.</li> <li>Identifikasi pos "bocor" seperti jajan impulsif atau langganan tak terpakai.</li> </ul> </div> <div class="card p-6"> <h3 class="text-xl font-bold mb-3" style="color: var(--primary);">Terlilit Utang Konsumtif</h3> <p class="text-sm mb-4" style="color: var(--text-secondary);">Tagihan kartu kredit atau paylater membengkak untuk membeli barang yang nilainya terus menurun?</p> <h4 class="font-semibold mb-2 text-white">Solusi Praktis:</h4> <ul class="solusi-list text-sm" style="color: var(--text-secondary);"> <li>Stop menambah utang baru. Bekukan kartu kredit jika perlu.</li> <li>Prioritaskan membayar utang dengan bunga tertinggi (metode avalanche).</li> <li>Cari penghasilan tambahan untuk mempercepat pelunasan.</li> </ul> </div> <div class="card p-6"> <h3 class="text-xl font-bold mb-3" style="color: var(--primary);">Tak Punya Dana Darurat</h3> <p class="text-sm mb-4" style="color: var(--text-secondary);">Satu kejadian tak terduga (sakit, PHK, motor rusak) bisa langsung merusak seluruh rencana keuanganmu.</p> <h4 class="font-semibold mb-2 text-white">Solusi Praktis:</h4> <ul class="solusi-list text-sm" style="color: var(--text-secondary);"> <li>Mulai kumpulkan 3-6 kali pengeluaran bulanan.</li> <li>Buat rekening terpisah khusus dana darurat. Jangan disentuh!</li> <li>Otomatiskan transfer bulanan ke rekening ini, walau hanya Rp 100.000.</li> </ul> </div> <div class="card p-6"> <h3 class="text-xl font-bold mb-3" style="color: var(--primary);">Bingung Memulai Investasi</h3> <p class="text-sm mb-4" style="color: var(--text-secondary);">Tahu investasi itu penting, tapi takut rugi, tidak tahu harus mulai dari mana, atau merasa modal kurang.</p> <h4 class="font-semibold mb-2 text-white">Solusi Praktis:</h4> <ul class="solusi-list text-sm" style="color: var(--text-secondary);"> <li>Mulai dari yang risiko rendah seperti Reksadana Pasar Uang.</li> <li>Gunakan fitur "DCA" (Dollar Cost Averaging) atau menabung rutin.</li> <li>Ingat: investasi adalah maraton, bukan sprint. Mulai dari Rp 10.000 pun bisa.</li> </ul> </div> <div class="card p-6"> <h3 class="text-xl font-bold mb-3" style="color: var(--primary);">Gaji Naik, Tabungan Stagnan</h3> <p class="text-sm mb-4" style="color: var(--text-secondary);">Setiap kali pendapatan naik, pengeluaran untuk gaya hidup (gadget baru, nongkrong mahal) juga ikut naik.</p> <h4 class="font-semibold mb-2 text-white">Solusi Praktis:</h4> <ul class="solusi-list text-sm" style="color: var(--text-secondary);"> <li>Saat gaji naik, naikkan jumlah tabungan/investasi terlebih dahulu.</li> <li>Terapkan aturan "tunggu 7 hari" sebelum membeli barang keinginan.</li> <li>Fokus pada tujuan jangka panjang, bukan kepuasan sesaat.</li> </ul> </div> <div class="card p-6"> <h3 class="text-xl font-bold mb-3" style="color: var(--primary);">Hidup Tanpa Tujuan Keuangan</h3> <p class="text-sm mb-4" style="color: var(--text-secondary);">Menabung tanpa arah yang jelas membuatnya terasa berat dan tidak memotivasi. Untuk apa sebenarnya kamu menabung?</p> <h4 class="font-semibold mb-2 text-white">Solusi Praktis:</h4> <ul class="solusi-list text-sm" style="color: var(--text-secondary);"> <li>Tentukan tujuan spesifik (DP Rumah, Dana Pensiun, Biaya Nikah).</li> <li>Hitung berapa yang dibutuhkan dan kapan targetnya.</li> <li>Pecah target besar menjadi target bulanan yang lebih mudah dicapai.</li> </ul> </div>
+                    </div>
+                </div>
+
+                <!-- Bagian Call to Action (CTA) -->
+                <div class="text-center py-16">
+                    <div class="card max-w-2xl mx-auto p-8 sm:p-10">
+                        <h2 class="text-2xl sm:text-3xl font-bold mb-3 text-white">Siap Memulai Perjalanan Finansialmu?</h2>
+                        <p class="mb-8" style="color: var(--text-secondary);">Klik tombol di bawah untuk mendaftar dan mulai menggunakan aplikasi.</p>
+                        <button id="go-to-login-button" class="btn-primary inline-block py-3 px-8 font-bold text-lg">
+                            Daftar Sekarang
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Halaman Login/Register (Awalnya tersembunyi) -->
+    <div id="login-page" class="hidden">
+        <main class="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
+            <!-- Tombol "Kembali" diubah menjadi link "Potato" -->
+            <a href="maza.html" id="potato-app-link" class="absolute top-4 left-4 text-sm btn-primary py-2 px-4 no-underline">
+                Potato
+            </a>
+            <div class="w-full max-w-md">
+                 <div class="card p-8">
+                     <div class="text-center mb-8">
+                         <h2 class="text-2xl font-bold" style="color: var(--text);">Selamat Datang</h2>
+                         <p style="color: var(--text-secondary);">Masuk atau daftar untuk melanjutkan.</p>
+                     </div>
+                     <div class="flex border-b mb-6" style="border-color: var(--card-border);">
+                         <button id="login-tab" class="auth-tab active flex-1">Masuk</button>
+                         <button id="register-tab" class="auth-tab flex-1">Daftar</button>
+                     </div>
+                     <form id="login-form">
+                         <div class="mb-4"><label for="login-email" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Email</label><input type="email" id="login-email" name="email" class="form-input w-full p-2" required></div>
+                         <div class="mb-6"><label for="login-password" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Password</label><input type="password" id="login-password" name="password" class="form-input w-full p-2" required></div>
+                         <button type="submit" class="btn-primary w-full py-2.5 font-semibold">Masuk</button>
+                     </form>
+                     <form id="register-form" class="hidden">
+                         <div class="mb-4"><label for="register-email" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Email</label><input type="email" id="register-email" name="email" class="form-input w-full p-2" required></div>
+                         <div class="mb-6"><label for="register-password" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Password</label><input type="password" id="register-password" name="password" class="form-input w-full p-2" required></div>
+                         <button type="submit" class="btn-primary w-full py-2.5 font-semibold">Daftar Akun Baru</button>
+                     </form>
+                     <div id="auth-error" class="mt-4 text-center text-sm" style="color: var(--danger);"></div>
+                 </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    // Skrip untuk Animasi 3D & Fungsionalitas Halaman
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Animasi 3D Interaktif ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.querySelector('#interactive-3d-canvas'),
+            alpha: true
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        const geometry = new THREE.IcosahedronGeometry(1.2, 0);
+        const material = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            metalness: 0.5,
+            roughness: 0.1,
+            emissive: 0x222222,
+            transparent: true,
+            opacity: 0.8
+        });
+        const crystal = new THREE.Mesh(geometry, material);
+        scene.add(crystal);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xa3b18a, 2, 100);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+        camera.position.z = 5;
+        const mouse = { x: 0, y: 0 };
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+        function animate() {
+            requestAnimationFrame(animate);
+            crystal.rotation.x += 0.001;
+            crystal.rotation.y += 0.002;
+            gsap.to(crystal.position, {
+                x: mouse.x * 2.5,
+                y: mouse.y * 2.5,
+                duration: 2,
+                ease: "power2.out"
+            });
+            gsap.to(pointLight.position, {
+                x: crystal.position.x + 2,
+                y: crystal.position.y + 2,
+                duration: 2,
+                ease: "power2.out"
+            });
+            renderer.render(scene, camera);
+        }
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        animate();
+
+        // --- Navigasi Halaman & Fungsionalitas Form ---
+        const landingPage = document.getElementById('landing-page');
+        const loginPage = document.getElementById('login-page');
+        const goToLoginButton = document.getElementById('go-to-login-button');
+        // Tombol "kembali" sudah diganti dengan link, jadi tidak perlu event listener JS lagi
+
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+
+        goToLoginButton.addEventListener('click', () => {
+            landingPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+        });
+
+        // Event listener untuk tombol 'back-to-landing-button' telah dihapus.
+        
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+        });
+
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('active');
+            loginTab.classList.remove('active');
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+        });
+
+        loginForm.addEventListener('submit', (e) => e.preventDefault());
+        registerForm.addEventListener('submit', (e) => e.preventDefault());
+    });
+    </script>
+</body>
+</html>

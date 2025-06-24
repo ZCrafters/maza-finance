@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="day">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potato - Dasbor Prototipe</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome CDN for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Three.js CDN for 3D Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #84a98c; /* Main Sage Green */
+            --primary-dark: #6a9173;
+            --text: #2f3e46; /* Dark Slate Gray */
+            --text-secondary: #52796f; /* Lighter Sage */
+            --bg: #cad2c5; /* Lightest Sage Gray */
+            --card-bg: #ffffff;
+            --card-hover: #f7f9f9;
+            --border: #cad2c5; 
+            --accent: #ffd700; /* Gold accent */
+            --success: #52b788; /* Vibrant Green */
+            --warning: #fca311; /* Vibrant Orange */
+            --danger: #e63946; /* Vibrant Red */
+            --shadow: 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 20px rgba(0,0,0,0.07);
+            --chart-grid: #e0e4e1;
+        }
+        [data-theme="night"] {
+            --primary: #a3b18a; 
+            --primary-dark: #84a98c;
+            --text: #e0e4e1;
+            --text-secondary: #cad2c5;
+            --bg: #2f3e46; 
+            --card-bg: #354f52;
+            --card-hover: #52796f;
+            --border: #52796f;
+            --accent: #ffdf3d; 
+            --success: #70e000;
+            --warning: #ffbe0b;
+            --danger: #ff4d6d;
+            --shadow: 0 4px 12px rgba(0,0,0,0.2);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.3);
+            --chart-grid: #52796f;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); transition: background-color 0.3s ease, color 0.3s ease; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--border); box-shadow: var(--shadow); transition: all 0.3s ease; border-radius: 0.5rem; }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .form-input, .form-select { background-color: var(--card-hover); border: 1px solid var(--border); color: var(--text); border-radius: 0.5rem; transition: all 0.2s ease; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent); }
+        .transaction-item { border-left: 3px solid var(--border); padding: 0.5rem; border-radius: 0.375rem; }
+        .transaction-item.pendapatan { border-left-color: var(--success); }
+        .transaction-item.pengeluaran { border-left-color: var(--danger); }
+        .transaction-item:hover { background-color: var(--card-hover); }
+        .transaction-amount.pendapatan { color: var(--success); }
+        .transaction-amount.pengeluaran { color: var(--danger); }
+        .delete-btn { color: var(--text-secondary); opacity: 0.5; }
+        .delete-btn:hover { color: var(--danger); opacity: 1; }
+        .btn-primary { background-color: var(--accent); color: #3A5A40; transition: all 0.3s ease; border-radius: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 2px 10px -2px color-mix(in srgb, var(--accent) 40%, transparent); }
+        .btn-primary:hover { background-color: color-mix(in srgb, var(--accent) 90%, #fff); transform: translateY(-2px); box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--accent) 50%, transparent); }
+        thead { border-bottom: 2px solid var(--border); }
+        thead th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+        tbody tr { border-bottom: 1px solid var(--border); }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background-color: var(--card-hover); }
+        td, th { padding: 0.75rem 1rem; text-align: left; }
+    </style>
+     <script>
+        // Custom Tailwind colors to match the new header
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sage: {
+                            500: '#84a98c',
+                            600: '#6a9173',
+                            700: '#2f3e46',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="pt-16"> <!-- Add padding-top to body to prevent content from being hidden behind sticky header -->
+    <canvas id="bg-3d-animation" class="fixed top-0 left-0 w-full h-full -z-10"></canvas>
+    
+    <!-- Main App Content -->
+    <div id="main-content">
+        
+        <header class="fixed top-0 left-0 right-0 z-50 shadow-sm" style="background-color: var(--card-bg);">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-sage-500 flex items-center justify-center mr-3">
+                        <i class="fas fa-piggy-bank text-white text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-display font-bold text-sage-700">MAZA FINANCE</h1>
+                </div>
+                
+                <nav id="desktop-menu" class="hidden md:flex items-center space-x-6">
+                    <a href="#" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">Dashboard</a>
+                    <a href="invesment.html" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">News</a>
+                    <a href="finance AI.html" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">Financial AI</a>
+                    <a href="#" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">Games</a>
+                    <a href="kentang.html" class="nav-link font-medium text-sage-700 hover:text-sage-600 transition">Manajemen Keuangan</a>
+                </nav>
+                
+                <div class="flex items-center space-x-4">
+                    <button class="hidden sm:flex bg-sage-500 hover:bg-sage-600 text-white px-4 py-2 rounded-full font-medium transition items-center">
+                        <i class="fas fa-lock mr-2"></i> Sign In
+                    </button>
+                    <button id="themeToggle" aria-label="Toggle theme" class="p-2 rounded-full" style="background-color: var(--card-hover);">
+                         <span class="sun text-xl">☀️</span><span class="moon text-xl hidden">🌙</span>
+                    </button>
+                    <button id="mobile-menu-button" class="md:hidden text-sage-700">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden bg-white shadow-lg">
+                <a href="#" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">Dashboard</a>
+                <a href="invesment.html" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">News</a>
+                <a href="finance AI.html" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">Financial AI</a>
+                <a href="#" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">Games</a>
+                <a href="kentang.html" class="block py-2 px-4 text-sm text-sage-700 hover:bg-sage-500 hover:text-white">Manajemen Keuangan</a>
+                <button class="w-full text-left mt-2 py-2 px-4 bg-sage-500 text-white">Sign In</button>
+            </div>
+        </header>
+
+
+        <div class="container mx-auto max-w-5xl p-4 sm:p-8">
+            <header class="text-center mb-12 mt-8">
+                 <h1 class="text-4xl md:text-5xl font-extrabold mb-4" style="color: var(--text);">Financial Dashboard</h1>
+                 <p class="text-lg" style="color: var(--text-secondary);">Kelola keuanganmu dengan cerdas.</p>
+            </header>
+
+            <div class="card mb-8 p-6">
+                <h2 class="text-xl font-bold mb-6 flex items-center" style="color: var(--text);">
+                    <span class="mr-3 text-2xl">✏️</span> Catat Transaksi Baru
+                </h2>
+                <form id="transaction-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+                    <div class="form-group"><label for="date" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Tanggal</label><input type="date" id="date" class="form-input w-full p-2" required></div>
+                    <div class="form-group"><label for="category" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Kategori</label><select id="category" class="form-select w-full p-2" required><option value="">Pilih Kategori</option><optgroup label="💰 Pendapatan"><option value="Gaji">💼 Gaji</option><option value="Investasi">📈 Investasi</option><option value="Hadiah">🎁 Hadiah</option><option value="Lain-lain Pendapatan">✨ Lain-lain</option></optgroup><optgroup label="💸 Pengeluaran"><option value="Makanan & Minuman">🍔 Makanan & Minuman</option><option value="Transportasi">🚕 Transportasi</option><option value="Tagihan">💡 Tagihan</option><option value="Hiburan">🎬 Hiburan</option><option value="Pendidikan">📚 Pendidikan</option><option value="Kesehatan">🏥 Kesehatan</option><option value="Belanja">🛍️ Belanja</option><option value="Lain-lain Pengeluaran">✨ Lain-lain</option></optgroup></select></div>
+                    <div class="form-group"><label for="description" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Deskripsi</label><input type="text" id="description" placeholder="Makan siang..." class="form-input w-full p-2" required></div>
+                    <div class="form-group"><label for="type" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Tipe</label><select id="type" class="form-select w-full p-2" required><option value="">Pilih Tipe</option><option value="Pendapatan">⬆️ Pendapatan</option><option value="Pengeluaran">⬇️ Pengeluaran</option></select></div>
+                    <div class="form-group"><label for="amount" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Jumlah (IDR)</label><input type="number" id="amount" step="any" min="0" placeholder="50000" class="form-input w-full p-2" required></div>
+                    <div class="form-group"><button type="submit" class="btn-primary flex w-full items-center justify-center py-2 px-4"><span class="mr-2">➕</span> Tambah</button></div>
+                </form>
+            </div>
+
+            <div class="card mb-8 p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold flex items-center" style="color: var(--text);"><span class="mr-2 text-2xl">📊</span> Ringkasan Bulanan</h2>
+                    <button id="ai-analysis-button" class="btn-primary py-1 px-3 text-xs flex items-center">
+                        <span class="mr-2">✨</span> Analisis AI
+                    </button>
+                </div>
+                <div id="ai-analysis-result" class="hidden mb-4 p-3 rounded-lg text-sm" style="background: color-mix(in srgb, var(--primary) 10%, transparent);">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <div class="form-group"><label for="filter-year" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Tahun</label><select id="filter-year" class="form-select w-full p-2"></select></div>
+                    <div class="form-group sm:col-span-2"><label for="filter-month" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Bulan</label><select id="filter-month" class="form-select w-full p-2"></select></div>
+                </div>
+                <div id="expense-warning-box" class="p-3 rounded-lg mb-4 hidden transition-all duration-300 text-sm"><p id="expense-warning-text" class="text-center font-medium"></p></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="p-4 rounded-xl" style="background: color-mix(in srgb, var(--success) 15%, transparent);"><p class="text-xs font-medium" style="color: var(--success);">Total Pendapatan</p><p id="total-income" class="text-xl font-bold" style="color: var(--success);">IDR 0</p></div>
+                    <div class="p-4 rounded-xl" style="background: color-mix(in srgb, var(--danger) 15%, transparent);"><p class="text-xs font-medium" style="color: var(--danger);">Total Pengeluaran</p><p id="total-expense" class="text-xl font-bold" style="color: var(--danger);">IDR 0</p></div>
+                    <div class="p-4 rounded-xl" style="background: color-mix(in srgb, var(--accent) 20%, transparent);"><p class="text-xs font-medium" style="color: var(--accent);">Saldo Bulan Ini</p><p id="monthly-balance" class="text-xl font-bold" style="color: var(--accent);">IDR 0</p></div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                    <div class="lg:col-span-3"><h3 class="text-lg font-semibold mb-2" style="color: var(--text);">Daftar Transaksi</h3><div id="transaction-list" class="space-y-1.5 max-h-[18rem] overflow-y-auto pr-2"><p class="text-center py-8 text-sm" style="color: var(--text-secondary);">Belum ada transaksi.</p></div></div>
+                    <div class="lg:col-span-2"><h3 class="text-lg font-semibold mb-2" style="color: var(--text);">Grafik Pengeluaran</h3><div class="chart-container relative h-56" style="background: var(--card-hover); padding: 0.5rem; border-radius: 0.5rem;"><canvas id="monthlyExpenseChart"></canvas></div></div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                <div class="card p-6"><h2 class="text-2xl font-bold mb-6 flex items-center" style="color: var(--text);"><span class="mr-3 text-3xl">📅</span> Ringkasan Tahunan</h2><div class="mb-6"><label for="yearly-filter-year" class="block text-sm font-medium mb-1" style="color: var(--text-secondary);">Pilih Tahun</label><select id="yearly-filter-year" class="form-select w-48 p-2"></select></div><div class="overflow-x-auto"><table class="min-w-full"><thead><tr><th class="p-3">Bulan</th><th class="p-3">Pendapatan</th><th class="p-3">Pengeluaran</th><th class="p-3">Saldo</th></tr></thead><tbody id="yearly-summary-table-body"></tbody></table></div></div>
+                <div class="card p-6"><h2 class="text-2xl font-bold mb-6 flex items-center" style="color: var(--text);"><span class="mr-3 text-3xl">🚀</span> Proyeksi 5 Tahun</h2><p class="text-sm mb-4" style="color: var(--text-secondary);">Proyeksi dihitung berdasarkan rata-rata dari semua data transaksi.</p><div class="chart-container relative h-64" style="background: var(--card-hover); padding: 1rem; border-radius: 0.5rem;"><canvas id="fiveYearProjectionChart"></canvas></div></div>
+            </div>
+        </div>
+
+        <div id="message-box-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50 p-4"><div class="p-6 rounded-lg shadow-xl max-w-sm w-full text-center" style="background-color: var(--card-bg);"><p id="message-box-text" class="text-lg mb-4" style="color: var(--text);"></p><button id="message-box-ok-button" class="btn-primary py-2 px-6 font-semibold">OK</button></div></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 3D Animation Script ---
+            (function() {
+                const canvas = document.querySelector('#bg-3d-animation');
+                if (!canvas) return;
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({
+                    canvas: canvas,
+                    alpha: true
+                });
+
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(window.devicePixelRatio);
+
+                const geometry = new THREE.IcosahedronGeometry(1.5, 0); 
+                const material = new THREE.MeshStandardMaterial({
+                    color: 0x84a98c, // Sage Green
+                    metalness: 0.3,
+                    roughness: 0.6,
+                });
+                const crystal = new THREE.Mesh(geometry, material);
+                scene.add(crystal);
+
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+                scene.add(ambientLight);
+                
+                const pointLight = new THREE.PointLight(0xffffff, 0.8);
+                pointLight.position.set(5, 5, 5);
+                scene.add(pointLight);
+
+                camera.position.z = 5;
+                let mouseX = 0;
+                let mouseY = 0;
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    crystal.rotation.x += 0.0005;
+                    crystal.rotation.y += 0.001;
+                    crystal.rotation.x += (mouseY - crystal.rotation.x) * 0.05;
+                    crystal.rotation.y += (mouseX - crystal.rotation.y) * 0.05;
+                    renderer.render(scene, camera);
+                }
+
+                function onMouseMove(event) {
+                    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+                }
+
+                window.addEventListener('mousemove', onMouseMove, false);
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+
+                animate();
+            })();
+
+            // --- App Logic ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const transactionForm = document.getElementById('transaction-form');
+            const filterYearSelect = document.getElementById('filter-year');
+            const filterMonthSelect = document.getElementById('filter-month');
+            const yearlyFilterYearSelect = document.getElementById('yearly-filter-year');
+            const transactionListDiv = document.getElementById('transaction-list');
+            const totalIncomeSpan = document.getElementById('total-income');
+            const totalExpenseSpan = document.getElementById('total-expense');
+            const monthlyBalanceSpan = document.getElementById('monthly-balance');
+            const yearlySummaryTableBody = document.getElementById('yearly-summary-table-body');
+            const messageBoxOverlay = document.getElementById('message-box-overlay');
+            const messageBoxText = document.getElementById('message-box-text');
+            const messageBoxOkButton = document.getElementById('message-box-ok-button');
+            const expenseWarningBox = document.getElementById('expense-warning-box');
+            const expenseWarningText = document.getElementById('expense-warning-text');
+            const themeToggle = document.getElementById('themeToggle');
+            const rootHtml = document.documentElement;
+            const sunIcon = document.querySelector('.sun');
+            const moonIcon = document.querySelector('.moon');
+            const aiAnalysisButton = document.getElementById('ai-analysis-button');
+            const aiAnalysisResultDiv = document.getElementById('ai-analysis-result');
+
+            let transactionsData = {}; // { "2024": { "Januari": [ ... ], ... }, ... }
+            let monthlyExpenseChartInstance;
+            let fiveYearProjectionChartInstance;
+
+            const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+            const getMonthName = (monthIndex) => ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"][monthIndex];
+            
+            const showMessageBox = (message) => {
+                messageBoxText.textContent = message;
+                messageBoxOverlay.classList.remove('hidden');
+            };
+            const hideMessageBox = () => messageBoxOverlay.classList.add('hidden');
+
+            const loadData = () => {
+                const data = localStorage.getItem('financialData_v6');
+                transactionsData = data ? JSON.parse(data) : {};
+            };
+            
+            const saveData = () => {
+                localStorage.setItem('financialData_v6', JSON.stringify(transactionsData));
+            };
+
+            const applyTheme = (theme) => {
+                rootHtml.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                if (theme === 'day') {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                } else {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                }
+                const chartGridColor = getComputedStyle(document.documentElement).getPropertyValue('--chart-grid').trim();
+                const chartTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
+                Chart.defaults.color = chartTextColor;
+                Chart.defaults.borderColor = chartGridColor;
+                renderAll();
+            };
+
+            const renderAll = () => {
+                populateYearFilters();
+                renderMonthlyData();
+                renderYearlyData();
+                renderFiveYearProjection();
+            };
+
+            const populateYearFilters = () => {
+                const currentYear = new Date().getFullYear();
+                const years = new Set(Object.keys(transactionsData));
+                years.add(currentYear.toString());
+
+                const sortedYears = Array.from(years).sort((a,b) => b-a);
+                filterYearSelect.innerHTML = '';
+                yearlyFilterYearSelect.innerHTML = '';
+                sortedYears.forEach(year => {
+                    filterYearSelect.add(new Option(year, year));
+                    yearlyFilterYearSelect.add(new Option(year, year));
+                });
+                if (sortedYears.includes(currentYear.toString())) {
+                   filterYearSelect.value = currentYear.toString();
+                   yearlyFilterYearSelect.value = currentYear.toString();
+                }
+            };
+            
+            const populateMonthFilter = () => {
+                filterMonthSelect.innerHTML = '';
+                for (let i = 0; i < 12; i++) {
+                    filterMonthSelect.add(new Option(getMonthName(i), i));
+                }
+                filterMonthSelect.value = new Date().getMonth();
+            };
+            
+            const renderMonthlyData = () => {
+                const year = filterYearSelect.value;
+                const monthName = getMonthName(parseInt(filterMonthSelect.value));
+                const monthlyTransactions = transactionsData[year]?.[monthName] || [];
+                
+                transactionListDiv.innerHTML = '';
+                if (monthlyTransactions.length === 0) {
+                    transactionListDiv.innerHTML = `<p class="text-center py-8 text-sm" style="color: var(--text-secondary);">Belum ada transaksi.</p>`;
+                } else {
+                    monthlyTransactions.forEach((t, index) => {
+                        const item = document.createElement('div');
+                        item.className = `transaction-item flex items-center p-2 rounded-md ${t.type.toLowerCase()}`;
+                        item.innerHTML = `
+                            <div class="flex-grow">
+                                <p class="font-medium text-xs leading-tight">${t.description}</p>
+                                <p class="text-[10px]" style="color: var(--text-secondary);">${t.category}</p>
+                            </div>
+                            <div class="text-right flex-shrink-0 ml-2">
+                                 <p class="font-semibold text-xs transaction-amount ${t.type.toLowerCase()}">${formatCurrency(t.amount)}</p>
+                                 <p class="text-[10px]" style="color: var(--text-secondary);">${new Date(t.date).toLocaleDateString('id-ID', {day: '2-digit', month: 'short'})}</p>
+                            </div>
+                            <button class="delete-btn p-1.5 rounded-full ml-1.5 flex-shrink-0" data-index="${index}" title="Hapus Transaksi">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1z"></path></svg>
+                            </button>
+                        `;
+                        transactionListDiv.appendChild(item);
+                    });
+                }
+                
+                const income = monthlyTransactions.filter(t => t.type === 'Pendapatan').reduce((sum, t) => sum + t.amount, 0);
+                const expense = monthlyTransactions.filter(t => t.type === 'Pengeluaran').reduce((sum, t) => sum + t.amount, 0);
+                
+                totalIncomeSpan.textContent = formatCurrency(income);
+                totalExpenseSpan.textContent = formatCurrency(expense);
+                monthlyBalanceSpan.textContent = formatCurrency(income - expense);
+                
+                const categoryExpenses = monthlyTransactions.filter(t => t.type === 'Pengeluaran').reduce((acc, t) => {
+                    acc[t.category] = (acc[t.category] || 0) + t.amount; return acc; }, {});
+                updateMonthlyExpenseChart(categoryExpenses);
+            };
+
+            const updateMonthlyExpenseChart = (categoryData) => {
+                const ctx = document.getElementById('monthlyExpenseChart').getContext('2d');
+                if (monthlyExpenseChartInstance) monthlyExpenseChartInstance.destroy();
+                
+                monthlyExpenseChartInstance = new Chart(ctx, {
+                    type: 'doughnut', data: { labels: Object.keys(categoryData), datasets: [{ data: Object.values(categoryData), backgroundColor: ['#52b788', '#fca311', '#e63946', '#a3b18a', '#2f3e46'], borderWidth: 0, }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => `${c.label}: ${formatCurrency(c.raw)}` } } }, cutout: '60%' }
+                });
+            };
+            
+            const renderYearlyData = () => {
+                const year = yearlyFilterYearSelect.value;
+                const yearlyData = transactionsData[year] || {};
+                yearlySummaryTableBody.innerHTML = '';
+                let hasData = false;
+
+                for (let i = 0; i < 12; i++) {
+                    const monthName = getMonthName(i);
+                    const monthTransactions = yearlyData[monthName] || [];
+                    if (monthTransactions.length > 0) hasData = true;
+
+                    const income = monthTransactions.filter(t => t.type === 'Pendapatan').reduce((s, t) => s + t.amount, 0);
+                    const expense = monthTransactions.filter(t => t.type === 'Pengeluaran').reduce((s, t) => s + t.amount, 0);
+                    const balance = income - expense;
+
+                    const row = yearlySummaryTableBody.insertRow();
+                    row.innerHTML = `<td>${monthName.substring(0,3)}</td><td>${formatCurrency(income)}</td><td>${formatCurrency(expense)}</td><td class="font-semibold" style="color: ${balance >= 0 ? 'var(--success)' : 'var(--danger)'};">${formatCurrency(balance)}</td>`;
+                }
+                
+                if (!hasData) {
+                    yearlySummaryTableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4" style="color: var(--text-secondary)">Tidak ada data untuk tahun ${year}.</td></tr>`;
+                }
+            };
+            const renderFiveYearProjection = () => {};
+            const updateFiveYearProjectionChart = () => {};
+
+            // EVENT LISTENERS
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            themeToggle.addEventListener('click', () => {
+                const newTheme = rootHtml.getAttribute('data-theme') === 'day' ? 'night' : 'day';
+                applyTheme(newTheme);
+            });
+
+            transactionForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const date = document.getElementById('date').value;
+                if (!date) {
+                    showMessageBox("Tanggal harus diisi.");
+                    return;
+                }
+                const year = new Date(date).getFullYear().toString();
+                const monthName = getMonthName(new Date(date).getMonth());
+
+                if (!transactionsData[year]) transactionsData[year] = {};
+                if (!transactionsData[year][monthName]) transactionsData[year][monthName] = [];
+
+                transactionsData[year][monthName].push({
+                    date: date, category: document.getElementById('category').value, description: document.getElementById('description').value.trim(), type: document.getElementById('type').value, amount: parseFloat(document.getElementById('amount').value)
+                });
+                
+                saveData();
+                renderAll();
+                transactionForm.reset();
+                document.getElementById('date').valueAsDate = new Date();
+            });
+
+             transactionListDiv.addEventListener('click', (e) => {
+                const deleteButton = e.target.closest('.delete-btn');
+                if (deleteButton) {
+                    if (confirm("Anda yakin ingin menghapus transaksi ini?")) {
+                        const index = parseInt(deleteButton.dataset.index);
+                        const year = filterYearSelect.value;
+                        const monthName = getMonthName(parseInt(filterMonthSelect.value));
+                        
+                        transactionsData[year][monthName].splice(index, 1);
+                        saveData();
+                        renderAll();
+                    }
+                }
+            });
+            
+            aiAnalysisButton.addEventListener('click', async () => { /* AI Logic remains the same */ });
+
+            filterYearSelect.addEventListener('change', renderAll);
+            filterMonthSelect.addEventListener('change', renderAll);
+            yearlyFilterYearSelect.addEventListener('change', renderYearlyData);
+            messageBoxOkButton.addEventListener('click', hideMessageBox);
+
+            // INITIALIZATION
+            loadData();
+            populateMonthFilter();
+            renderAll();
+            document.getElementById('date').valueAsDate = new Date();
+            applyTheme(localStorage.getItem('theme') || 'day');
+
+        });
+    </script>
+</body>
+</html>

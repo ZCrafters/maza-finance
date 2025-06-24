@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maza Bank | Financial Freedom for New Generation </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sage: {
+                            50: '#f5f7f4',
+                            100: '#e9eee7',
+                            200: '#d3decd',
+                            300: '#aec4a5',
+                            400: '#85a37a',
+                            500: '#658657',
+                            600: '#4f6a45',
+                            700: '#3f5438',
+                            800: '#34452f',
+                            900: '#2c3a28',
+                        },
+                        accent: {
+                            50: '#f0fdf9',
+                            100: '#ccfbf0',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Poppins', 'sans-serif'],
+                        'display': ['Space Grotesk', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f5f7f4 0%, #e9eee7 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px) rotateX(5deg);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .game-card:hover {
+            transform: translateY(-5px) rotateY(5deg);
+        }
+        .investment-card {
+            background: linear-gradient(135deg, #658657 0%, #85a37a 100%);
+        }
+        .game-card {
+            background: linear-gradient(135deg, #4f6a45 0%, #658657 100%);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-preserve-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .transform-rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        .hover\:rotate-y-180:hover {
+            transform: rotateY(180deg);
+        }
+        .game-preview-container:hover .game-world {
+            transform: rotateY(180deg);
+        }
+        .game-card-front, .game-card-back {
+            transition: all 0.6s ease;
+        }
+        .animate-bounce {
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0px rgba(101, 134, 87, 0.5); }
+            100% { box-shadow: 0 0 0 20px rgba(101, 134, 87, 0); }
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        @media (max-width: 640px) {
+            .game-preview-container {
+                height: 180px;
+            }
+            .game-card-front, .game-card-back {
+                padding: 1rem;
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 24px;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .glow {
+            box-shadow: 0 0 15px rgba(101, 134, 87, 0.5);
+        }
+        .nav-link:hover {
+            color: #658657;
+        }
+        .stat-card {
+            border-left: 4px solid #658657;
+        }
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #658657;
+        }
+        .finance-chart {
+            height: 250px;
+            position: relative;
+            perspective: 800px;
+            transform-style: preserve-3d;
+        }
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 30px;
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .chart-bar:hover {
+            transform: translateZ(30px) scale(1.1);
+        }
+        .ai-bubble {
+            border-radius: 20px 20px 20px 0;
+        }
+        .user-bubble {
+            border-radius: 20px 20px 0 20px;
+        }
+    </style>
+</head>
+<body class="bg-sage-50 font-sans text-gray-800">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-sage-500 flex items-center justify-center mr-3">
+                    <i class="fas fa-piggy-bank text-white text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-display font-bold text-sage-700">MAZA FINANCE</h1>
+            </div>
+            
+            <nav class="hidden md:flex space-x-8">
+                <a href="maza.html" class="nav-link font-medium hover:text-sage-600 transition">Dashboard</a>
+                <a href="invesment.html" class="nav-link font-medium hover:text-sage-600 transition">News</a>
+                <a href="finance AI.html" class="nav-link font-medium hover:text-sage-600 transition">Financial AI</a>
+                <a href="#" class="nav-link font-medium hover:text-sage-600 transition">Games</a>
+                <a href="kentang.html" class="nav-link font-medium hover:text-sage-600 transition">Manajemen Keuangan</a>
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <button class="bg-sage-500 hover:bg-sage-600 text-white px-4 py-2 rounded-full font-medium transition flex items-center">
+                    <i class="fas fa-lock mr-2"></i> Sign In
+                </button>
+                <button class="md:hidden text-sage-700">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg">
+        <div class="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0">
+                <h1 class="text-4xl md:text-5xl font-display font-bold text-sage-800 mb-4">Banking Made <span class="text-accent-500">Fun</span> for New Generation</h1>
+                <p class="text-lg text-gray-600 mb-8">Track expenses, invest wisely, and play your way to financial freedom with Maza Bank's AI-powered tools.</p>
+                <div class="flex flex-wrap gap-4">
+                    <button class="bg-sage-600 hover:bg-sage-700 text-white px-6 py-3 rounded-full font-medium transition flex items-center">
+                        Get Started <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                    <button class="border-2 border-sage-500 text-sage-600 hover:bg-sage-50 px-6 py-3 rounded-full font-medium transition flex items-center">
+                        <i class="fas fa-play-circle mr-2"></i> Watch Demo
+                    </button>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center">
+                <div class="relative">
+                    <div class="w-72 h-72 bg-sage-400 rounded-3xl transform rotate-6"></div>
+                    <div class="absolute top-0 left-0 w-72 h-72 bg-white rounded-3xl shadow-xl p-6 transform -rotate-3">
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <p class="text-gray-500 text-sm">Total Balance</p>
+                                <h3 class="text-2xl font-bold text-sage-800">Rp 8,250,000</h3>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-sage-100 flex items-center justify-center">
+                                <i class="fas fa-wallet text-sage-600"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="finance-chart mb-6">
+                            <!-- Chart bars will be generated by JS -->
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <button class="bg-sage-100 text-sage-700 px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-arrow-up mr-2"></i> Send
+                            </button>
+                            <button class="bg-sage-100 text-sage-700 px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-arrow-down mr-2"></i> Request
+                            </button>
+                            <button class="bg-sage-100 text-sage-700 px-4 py-2 rounded-lg flex items-center">
+                                <i class="fas fa-qrcode mr-2"></i> Pay
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-sage-800 mb-4">Your Financial Superpowers</h2>
+                <p class="text-gray-600">Maza Bank combines banking, AI insights, and gamified investing to make finance simple and engaging.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Financial Tracking -->
+                <div class="group relative bg-white rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border border-sage-100 overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sage-400 to-accent-400"></div>
+                    <div class="feature-icon bg-sage-50 text-sage-600 mx-auto group-hover:bg-sage-100 group-hover:text-sage-700 transition-all">
+                        <i class="fas fa-chart-line text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-display font-bold text-sage-800 mb-3 text-center">Smart Tracking</h3>
+                    <p class="text-gray-600 mb-6 text-center">Automatically categorize expenses and visualize your spending patterns.</p>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">Food & Drinks</span>
+                            <span class="text-sm font-medium">Rp 1.2M</span>
+                        </div>
+                        <div class="progress-bar bg-sage-100">
+                            <div class="progress-fill" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium">Entertainment</span>
+                            <span class="text-sm font-medium">Rp 850K</span>
+                        </div>
+                        <div class="progress-bar bg-sage-100">
+                            <div class="progress-fill" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Assistant -->
+                <div class="group relative bg-white rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border border-sage-100 overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-accent-400 to-sage-400"></div>
+                    <div class="feature-icon bg-sage-50 text-sage-600 mx-auto group-hover:bg-sage-100 group-hover:text-sage-700 transition-all">
+                        <i class="fas fa-robot text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-display font-bold text-sage-800 mb-3 text-center">AI Finance Assistant</h3>
+                    <p class="text-gray-600 mb-6 text-center">Get personalized financial advice and projections based on your spending habits.</p>
+                    
+                    <div class="bg-sage-50 rounded-xl p-4 mb-3">
+                        <div class="ai-bubble bg-white p-3 mb-2">
+                            <p class="text-sm">Based on your spending, you could save Rp 450K/month by reducing dining out.</p>
+                        </div>
+                        <div class="user-bubble bg-sage-100 p-3 ml-8">
+                            <p class="text-sm">What investments suit a Rp 2M/month budget?</p>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full bg-sage-100 hover:bg-sage-200 text-sage-700 py-2 rounded-lg font-medium">
+                        Ask Maza AI
+                    </button>
+                </div>
+                
+                <!-- Investment Game -->
+                <div class="group relative game-card rounded-2xl shadow-xl p-8 text-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-white/30 to-white/50"></div>
+                    <div class="feature-icon bg-white/20 mx-auto group-hover:bg-white/30 transition-all">
+                        <i class="fas fa-gamepad text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-display font-bold mb-3 text-center">Investment Games</h3>
+                    <p class="mb-6 text-center opacity-90">Learn investing through fun simulations with real rewards.</p>
+                    
+                    <div class="flex justify-between mb-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">3</div>
+                            <div class="text-sm opacity-80">Games Played</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">Rp 120K</div>
+                            <div class="text-sm opacity-80">Earned</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold">12</div>
+                            <div class="text-sm opacity-80">Badges</div>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full bg-white bg-opacity-20 hover:bg-opacity-30 py-2 rounded-lg font-medium">
+                        Play Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projections Section -->
+    <section class="py-16 gradient-bg">
+        <div class="container mx-auto px-4">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-sage-800 mb-4">Future Financial You</h2>
+                <p class="text-gray-600">See how small changes today can transform your financial future.</p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row gap-8 items-center">
+                <div class="md:w-1/2">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                        <h3 class="text-xl font-bold text-sage-800 mb-4">Your Projection</h3>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Current Savings</span>
+                            <span class="font-medium">Rp 5.4M</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Monthly Contribution</span>
+                            <span class="font-medium">Rp 750K</span>
+                        </div>
+                        <div class="flex justify-between mb-2">
+                            <span class="text-gray-600">Estimated Return</span>
+                            <span class="font-medium text-accent-600">8% / year</span>
+                        </div>
+                        <div class="h-1 bg-sage-100 my-4"></div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">In 5 Years</span>
+                            <span class="font-bold text-lg text-sage-700">Rp 68.2M</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-sage-800 text-white rounded-2xl shadow-lg p-6">
+                        <h3 class="text-xl font-bold mb-4">Boost Your Future</h3>
+                        <p class="mb-4">Increase your monthly savings by just Rp 200K and gain an extra Rp 15.7M in 5 years!</p>
+                        <button class="bg-accent-500 hover:bg-accent-600 text-white px-4 py-2 rounded-lg font-medium">
+                            Optimize Plan
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="md:w-1/2">
+                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                        <div class="flex justify-between mb-6">
+                            <h3 class="text-xl font-bold text-sage-800">Growth Timeline</h3>
+                            <div class="flex">
+                                <button class="bg-sage-100 text-sage-700 px-3 py-1 rounded-l-lg">1Y</button>
+                                <button class="bg-sage-100 text-sage-700 px-3 py-1 border-l border-sage-200">3Y</button>
+                                <button class="bg-sage-600 text-white px-3 py-1 rounded-r-lg border-l border-sage-200">5Y</button>
+                            </div>
+                        </div>
+                        
+                        <div class="relative h-64">
+                            <!-- Timeline visualization -->
+                            <div class="absolute bottom-0 left-0 right-0 h-px bg-gray-300"></div>
+                            
+                            <div class="absolute left-0 bottom-0 w-4 h-4 rounded-full bg-sage-600"></div>
+                            <div class="absolute left-1/4 bottom-0 w-4 h-4 rounded-full bg-sage-600"></div>
+                            <div class="absolute left-2/4 bottom-0 w-4 h-4 rounded-full bg-sage-600"></div>
+                            <div class="absolute left-3/4 bottom-0 w-4 h-4 rounded-full bg-sage-600"></div>
+                            <div class="absolute right-0 bottom-0 w-4 h-4 rounded-full bg-accent-500"></div>
+                            
+                            <div class="absolute left-0 bottom-0" style="transform: translateY(-100%)">
+                                <div class="text-xs text-gray-500">Now</div>
+                                <div class="font-bold">Rp 5.4M</div>
+                            </div>
+                            
+                            <div class="absolute right-0 bottom-0" style="transform: translateY(-100%)">
+                                <div class="text-xs text-gray-500">Year 5</div>
+                                <div class="font-bold text-accent-500">Rp 68.2M</div>
+                            </div>
+                            
+                            <div class="absolute left-0 bottom-0 w-full" style="height: 2px; background: linear-gradient(to right, #658657, #2dd4bf); top: 30%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QR Payment Section -->
+    <section class="py-16 bg-sage-800 text-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h2 class="text-3xl md:text-4xl font-display font-bold mb-4">Instant QR Payments</h2>
+                    <p class="text-sage-200 mb-6">Pay anywhere with your personalized QR code. Integrated with Bank Indonesia's QRIS system.</p>
+                    
+                    <div class="flex flex-wrap gap-4 mb-8">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-sage-700 flex items-center justify-center mr-3">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <span>Fast Transactions</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-sage-700 flex items-center justify-center mr-3">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <span>Bank-Level Security</span>
+                        </div>
+                    </div>
+                    
+                    <button class="bg-accent-500 hover:bg-accent-600 text-white px-6 py-3 rounded-full font-medium flex items-center">
+                        <i class="fas fa-qrcode mr-2"></i> Show My QR Code
+                    </button>
+                </div>
+                
+                <div class="md:w-1/2 flex justify-center">
+                    <div class="relative">
+                        <div class="w-64 h-64 bg-sage-700 rounded-2xl flex items-center justify-center">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="w-6 h-6 bg-white rounded-sm"></div>
+                                <div class="w-6 h-6 bg-white rounded-sm"></div>
+                                <div class="w-6 h-6 bg-white rounded-sm"></div>
+                                <div class="w-6 h-6 bg-white rounded-sm"></div>
+                                <div class="w-6 h-6 bg-sage-800 rounded-sm"></div>
+                                <div class="w-6 h-6 bg-white rounded-sm"></div>
+                                <div class="w-6 h-6 bg-white rounded-sm"></div>
+                                <div class="w-6 h-6 bg-sage-800 rounded-sm"></div>
+                                <div class="w-6 h-6 bg-white rounded-sm"></div>
+                            </div>
+                        </div>
+                        <div class="absolute -top-4 -right-4 bg-white text-sage-800 py-2 px-4 rounded-full font-bold shadow-lg">
+                            <i class="fas fa-sync-alt mr-2 text-accent-500"></i> Active
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-sage-900 text-sage-200 py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 rounded-full bg-sage-500 flex items-center justify-center mr-3">
+                            <i class="fas fa-piggy-bank text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-display font-bold text-white">MAZA BANK</h3>
+                    </div>
+                    <p class="mb-4">Financial freedom starts young. We make it simple, smart, and fun.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-sage-300 hover:text-white"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-sage-300 hover:text-white"><i class="fab fa-tiktok fa-lg"></i></a>
+                        <a href="#" class="text-sage-300 hover:text-white"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-sage-300 hover:text-white"><i class="fab fa-discord fa-lg"></i></a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-4">Features</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Expense Tracking</a></li>
+                        <li><a href="#" class="hover:text-white transition">AI Finance Assistant</a></li>
+                        <li><a href="#" class="hover:text-white transition">Investment Games</a></li>
+                        <li><a href="#" class="hover:text-white transition">Financial Projections</a></li>
+                        <li><a href="#" class="hover:text-white transition">QR Payments</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-white transition">Tutorials</a></li>
+                        <li><a href="#" class="hover:text-white transition">Financial Tips</a></li>
+                        <li><a href="#" class="hover:text-white transition">Investment Guides</a></li>
+                        <li><a href="#" class="hover:text-white transition">Help Center</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-bold text-white mb-4">Download App</h4>
+                    <p class="mb-4">Get Maza Bank on your mobile device</p>
+                    <div class="flex space-x-3">
+                        <button class="bg-sage-800 hover:bg-sage-700 px-4 py-2 rounded-lg flex items-center">
+                            <i class="fab fa-apple mr-2"></i> App Store
+                        </button>
+                        <button class="bg-sage-800 hover:bg-sage-700 px-4 py-2 rounded-lg flex items-center">
+                            <i class="fab fa-google-play mr-2"></i> Play Store
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-sage-800 mt-12 pt-8 text-center">
+                <p>&copy; 2023 Maza Bank. All rights reserved. Banking services provided by our partner banks.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Generate 3D animated chart bars
+        document.addEventListener('DOMContentLoaded', function() {
+            const chartContainer = document.querySelector('.finance-chart');
+            const categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            const values = [120, 180, 150, 200, 170, 220];
+            const maxValue = Math.max(...values);
+            
+            // Clear any existing content
+            chartContainer.innerHTML = '';
+            
+            // Add grid lines
+            for (let i = 0; i <= 5; i++) {
+                const gridLine = document.createElement('div');
+                gridLine.className = 'absolute left-0 right-0 h-px bg-gray-200';
+                gridLine.style.bottom = `${i * 50}px`;
+                chartContainer.appendChild(gridLine);
+            }
+            
+            categories.forEach((category, index) => {
+                const barHeight = (values[index] / maxValue) * 200;
+                
+                // Create bar with 3D effect
+                const barWrapper = document.createElement('div');
+                barWrapper.className = 'absolute bottom-0 transform-style-preserve-3d';
+                barWrapper.style.left = `${index * 50 + 20}px`;
+                barWrapper.style.width = '30px';
+                barWrapper.style.height = `${barHeight}px`;
+                barWrapper.style.transform = 'translateZ(20px)';
+                
+                // Front face
+                const barFront = document.createElement('div');
+                barFront.className = 'absolute bottom-0 w-full h-full bg-gradient-to-t from-sage-500 to-sage-300 rounded-t-md';
+                barFront.style.transform = 'translateZ(15px)';
+                barFront.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+                
+                // Side face
+                const barSide = document.createElement('div');
+                barSide.className = 'absolute bottom-0 right-0 w-3 h-full bg-sage-600 rounded-tr-md';
+                barSide.style.transform = 'rotateY(90deg) translateX(15px) translateZ(15px)';
+                
+                // Top face
+                const barTop = document.createElement('div');
+                barTop.className = 'absolute top-0 w-full h-3 bg-sage-400 rounded-t-md';
+                barTop.style.transform = 'rotateX(90deg) translateY(-15px) translateZ(15px)';
+                
+                // Add animation
+                barWrapper.style.transition = 'all 0.5s ease';
+                barWrapper.style.opacity = '0';
+                barWrapper.style.transform = 'translateZ(20px) translateY(50px)';
+                
+                barWrapper.appendChild(barFront);
+                barWrapper.appendChild(barSide);
+                barWrapper.appendChild(barTop);
+                chartContainer.appendChild(barWrapper);
+                
+                // Create label
+                const label = document.createElement('div');
+                label.className = 'absolute text-sm font-medium text-gray-600';
+                label.textContent = category;
+                label.style.bottom = '-25px';
+                label.style.left = `${index * 50 + 20}px`;
+                label.style.width = '30px';
+                label.style.textAlign = 'center';
+                chartContainer.appendChild(label);
+                
+                // Animate in
+                setTimeout(() => {
+                    barWrapper.style.opacity = '1';
+                    barWrapper.style.transform = 'translateZ(20px)';
+                }, index * 100);
+            });
+            
+            // Simulate AI conversation
+            setTimeout(() => {
+                const aiResponse = document.createElement('div');
+                aiResponse.className = 'ai-bubble bg-white p-3 mt-2';
+                aiResponse.innerHTML = '<p class="text-sm">For Rp 2M/month, I recommend starting with low-risk mutual funds and gold ETFs.</p>';
+                document.querySelector('.ai-bubble').parentNode.appendChild(aiResponse);
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
